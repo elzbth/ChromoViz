@@ -12,7 +12,21 @@ float spacer_rad = 0.02;
 
 int num_chr;
 
-float zoom  = 1; 
+
+//for navigation around canvas:
+float zoom  = 1;
+
+//offset for dragging
+PVector mouseClick;
+PVector prevMousePos;
+PVector targetOffset = new PVector(0,0);
+PVector offset = new PVector(0,0);
+boolean dragging = false;
+
+//offset for rotation
+boolean rotating = false;
+
+
 
 void setup(){
 
@@ -32,10 +46,19 @@ void setup(){
 void draw(){
 	background(255);
 	full_radius = int(min(width, height) * 0.4);
-	
-	scale(zoom);
 
-  	
+	
+	// smooth movement of canvas -- move by increments 
+
+    PVector d = new PVector();
+
+    d = PVector.sub(targetOffset, offset);
+    d.mult(0.1);
+    offset = PVector.add(offset, d);
+ 
+    scale(zoom);
+    translate(offset.x, offset.y);
+	  	
 
   	bed_table.drawAsInt(full_radius * 0.8);
   	bed_table.drawAsDot(full_radius * 0.9);
@@ -44,10 +67,7 @@ void draw(){
 
   	chr_ideogram.draw(full_radius);
 
-  	
-  	
 
-  // println(mouseX, mouseY);
 }
 
 
@@ -65,7 +85,48 @@ void keyPressed(){
     if (keyCode == DOWN) zoom -= 0.05;
     zoom = max(zoom, 0.1);
 
+    if(key == 'r'){
+    	zoom = 1;
+		offset = new PVector(0,0);
+		targetOffset = offset;
+    }
+
     
+}
+
+void mousePressed() {
+
+	// canvas dragging
+
+	if (mouseButton==LEFT) {
+		println("click!");
+		mouseClick = new PVector(mouseX, mouseY);
+	}
+
+}
+
+void mouseDragged(){
+
+  	PVector mousePos = new PVector(mouseX, mouseY);
+    targetOffset = PVector.sub(mousePos, mouseClick);
+
+}
+
+
+void mouseReleased() {
+
+	dragging = false;
+
+
+	rotating = false;
+}
+
+void mouseEntered(MouseEvent e) {
+  loop();
+}
+
+void mouseExited(MouseEvent e) {
+  noLoop();
 }
 
 
