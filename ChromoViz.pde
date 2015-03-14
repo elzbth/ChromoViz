@@ -1,3 +1,5 @@
+import processing.opengl.*;
+
 float[] angles;
 
 ChromIdeogram chr_ideogram;
@@ -23,8 +25,13 @@ PVector targetOffset = new PVector(0,0);
 PVector offset = new PVector(0,0);
 boolean dragging = false;
 
-//offset for rotation
+//angles for rotation
 boolean rotating = false;
+float rotateXangle = 0;
+float rotateYangle = 0;
+float rotateZangle = 0;
+float x_angle = 0;
+float y_angle = 0;
 
 
 
@@ -38,7 +45,8 @@ void setup(){
 
 
 
-	size(800,800);
+	size(800,800, OPENGL);
+	frameRate(30);
 	// noLoop();
 
 }
@@ -56,8 +64,13 @@ void draw(){
     d.mult(0.1);
     offset = PVector.add(offset, d);
  
+ 	pushMatrix();
     scale(zoom);
     translate(offset.x, offset.y);
+
+    rotateX(rotateXangle + x_angle);
+    rotateY(rotateYangle + y_angle);
+    // rotateZ(rotateZangle);
 	  	
 
   	bed_table.drawAsInt(full_radius * 0.8);
@@ -66,7 +79,7 @@ void draw(){
   	bed_pe_table.drawAsIntPairBezier(full_radius);
 
   	chr_ideogram.draw(full_radius);
-
+  	popMatrix();
 
 }
 
@@ -98,27 +111,40 @@ void mousePressed() {
 
 	// canvas dragging
 
-	if (mouseButton==LEFT) {
-		println("click!");
-		mouseClick = new PVector(mouseX, mouseY);
-	}
+
+	println("click!");
+	mouseClick = new PVector(mouseX, mouseY);
+
 
 }
 
 void mouseDragged(){
 
-  	PVector mousePos = new PVector(mouseX, mouseY);
-    targetOffset = PVector.sub(mousePos, mouseClick);
+	if(mouseButton==LEFT){
+	  	PVector mousePos = new PVector(mouseX, mouseY);
+	    targetOffset = PVector.sub(mousePos, mouseClick);
+	}
+	if(mouseButton==RIGHT){
+		x_angle = map(mouseX-mouseClick.x, 0, width, 0, TWO_PI);
+		y_angle = map(mouseY-mouseClick.y, 0, width, 0, TWO_PI);
+	}
 
 }
 
 
 void mouseReleased() {
 
-	dragging = false;
+	if (dragging){
+		dragging = false;
+	}
+
+	if (rotating){
+		rotating = false;
+		rotateXangle += x_angle;
+		rotateYangle += y_angle;
+	}
 
 
-	rotating = false;
 }
 
 void mouseEntered(MouseEvent e) {
