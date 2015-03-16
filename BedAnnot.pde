@@ -5,15 +5,34 @@
 class BedAnnot{
 	
 	Table bed_table;
+	String glyph;
+	color col;
+	int alpha_val;
 
-	BedAnnot(String bed_file){
+	BedAnnot(String bed_file, String g, color c, int a){
 
 		bed_table = loadTable(bed_file, "header, tsv");
+		glyph = g;
+		alpha_val = a;
+		col = c;
+
+	}
+
+	void draw(float radius, float x, float y){
+		if(	glyph.equals("dot")){
+			drawAsDot(radius, x, y);
+		}
+		else if(glyph.equals("interval")){
+			drawAsInt(radius, x, y);
+		}
+		else {
+			println("ERROR: wrong glyph type for bed: ", glyph);
+		}
 	}
 
 
 	//draw as colored interval
-	void drawAsInt(float radius){
+	void drawAsInt(float radius, float x, float y){
 
 		float start_angle = 0.0; 
 		float end_angle = 0.0; 
@@ -29,14 +48,14 @@ class BedAnnot{
 
 			// println(chr_name, startpos, endpos);
 
-			start_angle = chr_ideogram.genToPolar(chr_name, row.getInt("start"));
-			end_angle = chr_ideogram.genToPolar(chr_name, row.getInt("end"));
-			intBand(start_angle, end_angle, radius, width/2, height/2, 40, 180);
+			start_angle = genome.genToPolar(chr_name, row.getInt("start"));
+			end_angle = genome.genToPolar(chr_name, row.getInt("end"));
+			intBand(start_angle, end_angle, radius, x, y, 40, col, alpha_val);
 		}
 
 	}
 
-	void drawAsDot(float radius){
+	void drawAsDot(float radius, float x, float y){
 
 		float start_angle = 0.0; 
 		float end_angle = 0.0; 
@@ -52,14 +71,13 @@ class BedAnnot{
 
 			// println(chr_name, startpos, endpos);
 
-			start_angle = chr_ideogram.genToPolar(chr_name, row.getInt("start"));
-			end_angle = chr_ideogram.genToPolar(chr_name, row.getInt("end"));
-			intMidDot(start_angle, end_angle, radius, width/2, height/2);
+			start_angle = genome.genToPolar(chr_name, row.getInt("start"));
+			end_angle = genome.genToPolar(chr_name, row.getInt("end"));
+			intMidDot(start_angle, end_angle, radius, x, y, col, alpha_val);
 		}
 
 	}
 
-	//draw as dot
 
 	//draw as triangle
 

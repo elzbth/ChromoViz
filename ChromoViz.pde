@@ -1,85 +1,92 @@
 import processing.opengl.*;
+import peasy.*;
 
-float[] angles;
+//for nice image panning, rotation and zoom
+PeasyCam cam;
 
-ChromIdeogram chr_ideogram;
+//for nice colors
+ColorBrewer brewer = new ColorBrewer();
 
-BedAnnot bed_table;
+// float[] angles;
 
-BedPEAnnot bed_pe_table;
 
+
+//fraction of window the full radius occupies 
 int full_radius;
 
+//radians to space chromosomes
 float spacer_rad = 0.02;
 
-int num_chr;
+// int num_chr;
 
 
-//for navigation around canvas:
-float zoom  = 1;
+ArrayList<Genome> genomes = new ArrayList<Genome>();
 
-//offset for dragging
-PVector mouseClick;
-PVector prevMousePos;
-PVector targetOffset = new PVector(0,0);
-PVector offset = new PVector(0,0);
-boolean dragging = false;
+Genome genome;
 
-//angles for rotation
-boolean rotating = false;
-float rotateXangle = 0;
-float rotateYangle = 0;
-float rotateZangle = 0;
-float x_angle = 0;
-float y_angle = 0;
+
+
+ArrayList colors = brewer.get_Set1_Qualitative_4();
+
+int shift = 300;
 
 
 
 void setup(){
 
-	chr_ideogram = new ChromIdeogram("hg19.seqs.chr1-22.X.Y.fa.tsv");
+  size(800,800, P3D);
 
-	bed_table = new BedAnnot("test.bed");
+	cam = new PeasyCam(this, width/2, height/2, 0, 600);
+	// cam.setMinimumDistance(50);
+  	// cam.setMaximumDistance(500);
 
-	bed_pe_table = new BedPEAnnot("test.bedpe");
+	Genome genome1 = new Genome("hg19.seqs.chr1-22.X.Y.fa.tsv");
+
+	genome1.addBed("test.bed", "dot", color(215,25,28), 150);
+
+	genome1.addBedPE("test.bedpe", color(166,217,106), 150);
+
+  genome = genome1;
+
+  Genome genome2 = new Genome("hg19.seqs.chr1-22.X.Y.fa.tsv");
+
+  genome2.addBed("test.bed", "dot", color(215,25,28), 150);
+
+  genome2.addBedPE("test2.bedpe", color(166,217,106), 150);
 
 
+  genomes.add(genome1);
+  genomes.add(genome2);
 
-	size(800,800, OPENGL);
+  println(genomes);
+
+	
 	frameRate(30);
 	// noLoop();
 
 }
 
 void draw(){
-	background(255);
-	full_radius = int(min(width, height) * 0.4);
 
-	
-	// smooth movement of canvas -- move by increments 
 
-    PVector d = new PVector();
+  background(255);
+  full_radius = int(min(width, height) * 0.4);
 
-    d = PVector.sub(targetOffset, offset);
-    d.mult(0.1);
-    offset = PVector.add(offset, d);
- 
- 	pushMatrix();
-    scale(zoom);
-    translate(offset.x, offset.y);
 
-    rotateX(rotateXangle + x_angle);
-    rotateY(rotateYangle + y_angle);
-    // rotateZ(rotateZangle);
-	  	
+  int counter = 0;
 
-  	bed_table.drawAsInt(full_radius * 0.8);
-  	bed_table.drawAsDot(full_radius * 0.9);
 
-  	bed_pe_table.drawAsIntPairBezier(full_radius);
 
-  	chr_ideogram.draw(full_radius);
-  	popMatrix();
+  pushMatrix();
+  for (Genome genome : genomes){
+
+    translate(0, 0, counter * shift);
+    genome.draw(full_radius, width/2, width/2);
+    counter ++;
+
+  }
+  // println(counter);
+  popMatrix();
 
 }
 
@@ -91,61 +98,51 @@ void draw(){
 
 // ------ key and mouse events ------
 
-void keyPressed(){
-  
+// void keyPressed(){
 
-    if (keyCode == UP) zoom += 0.05;
-    if (keyCode == DOWN) zoom -= 0.05;
-    zoom = max(zoom, 0.1);
-
-    if(key == 'r'){
-    	zoom = 1;
-		offset = new PVector(0,0);
-		targetOffset = offset;
-    }
 
     
-}
+// }
 
-void mousePressed() {
+// void mousePressed() {
 
-	// canvas dragging
-
-
-	println("click!");
-	mouseClick = new PVector(mouseX, mouseY);
+// 	// canvas dragging
 
 
-}
-
-void mouseDragged(){
-
-	if(mouseButton==LEFT){
-	  	PVector mousePos = new PVector(mouseX, mouseY);
-	    targetOffset = PVector.sub(mousePos, mouseClick);
-	}
-	if(mouseButton==RIGHT){
-		x_angle = map(mouseX-mouseClick.x, 0, width, 0, TWO_PI);
-		y_angle = map(mouseY-mouseClick.y, 0, width, 0, TWO_PI);
-	}
-
-}
+// 	println("click!");
+// 	mouseClick = new PVector(mouseX, mouseY);
 
 
-void mouseReleased() {
+// }
 
-	if (dragging){
-		dragging = false;
-	}
+// void mouseDragged(){
 
-	if (rotating){
-		rotating = false;
-		rotateXangle += x_angle;
-		rotateYangle += y_angle;
-	}
+// 	if(mouseButton==LEFT){
+// 	  	PVector mousePos = new PVector(mouseX, mouseY);
+// 	    targetOffset = PVector.sub(mousePos, mouseClick);
+// 	}
+// 	if(mouseButton==RIGHT){
+// 		x_angle = map(mouseX-mouseClick.x, 0, width, 0, TWO_PI);
+// 		y_angle = map(mouseY-mouseClick.y, 0, width, 0, TWO_PI);
+// 	}
+
+// }
 
 
-}
+// void mouseReleased() {
+
+// 	if (dragging){
+// 		dragging = false;
+// 	}
+
+// 	if (rotating){
+// 		rotating = false;
+// 		rotateXangle += x_angle;
+// 		rotateYangle += y_angle;
+// 	}
+
+
+// }
 
 void mouseEntered(MouseEvent e) {
   loop();
