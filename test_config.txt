@@ -1,4 +1,16 @@
 genome	hg19.seqs.chr1-22.X.Y.fa.tsv	name
 bed	test.bed	189,89,69	dot
 bedpe	test.bedpe	107,148,77
+genome	hg19.seqs.chr1-22.X.Y.fa.tsv	name
+bed	test.bed	189,89,69	dot
+bedpe	test.bedpe	107,148,77
+genome	hg19.seqs.chr1-22.X.Y.fa.tsv	name
+bed	test.bed	189,89,69	dot
+bedpe	test.bedpe	107,148,77
+genome	hg19.seqs.chr1-22.X.Y.fa.tsv	name
+bed	test.bed	189,89,69	dot
+bedpe	test.bedpe	107,148,77
+genome	hg19.seqs.chr1-22.X.Y.fa.tsv	name
+bed	test.bed	189,89,69	dot
+bedpe	test.bedpe	107,148,77
 
