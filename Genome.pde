@@ -45,21 +45,21 @@ class Genome{
 
 	void draw(float radius, float center_x, float center_y){
 		ideogram.draw(radius, center_x, center_y);
-		println("drew ideo");
+		// println("drew ideo");
 		//to do: calculate fraction of radius as a function of number of bed annots
 		if (bed_annots != null){
 			for (BedAnnot b : bed_annots){
-				println("drew bed");
+				// println("drew bed");
 				b.draw(radius * 0.8, center_x, center_y);
-				println("drew bed");
+				// println("drew bed");
 			}
 		}
 
 		if (bedpe_annots != null){
 			for (BedPEAnnot bpe: bedpe_annots){
-				println("drawbedpe");
+				// println("drawbedpe");
 				bpe.draw(radius, center_x, center_y);
-				println("drew bedpe");
+				// println("drew bedpe");
 			}
 		}
 

@@ -56,6 +56,7 @@ class BedAnnot{
 
 	}
 
+	//draw as dot in the center of the interval
 	void drawAsDot(float radius, float x, float y){
 
 		float start_angle = 0.0; 
@@ -83,4 +84,6 @@ class BedAnnot{
 	//draw as triangle
 
 	//draw as scatter?
+
+	//draw as line
 }

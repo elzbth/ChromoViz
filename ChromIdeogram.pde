@@ -71,33 +71,40 @@ class ChromIdeogram{
 
 	TableRow get_chr_table_row(String chr_name){
 
-		return chr_table.getRow(getChrIndex(chr_name));
+		// return chr_table.getRow(getChrIndex(chr_name));
+		return chr_table.findRow(chr_name, "chr_name");
 
 	}
 
-	int getChrIndex(String chr_name){
-		println("chr_name", chr_name);
-		if (chr_name.equals( "X")){
-			return 22;
-		}
-		else if (chr_name.equals("Y")){
-				return 23;
-		}
-		else if (chr_name.equals("pb-ef1-neo_seq")){
-			return 24;
+	// int getChrIndex(String chr_name){
+	// 	println("chr_name", chr_name);
+	// 	if (chr_name.equals( "X")){
+	// 		return 22;
+	// 	}
+	// 	else if (chr_name.equals("Y")){
+	// 			return 23;
+	// 	}
+	// 	else if (chr_name.equals("pb-ef1-neo_seq")){
+	// 		return 24;
 			
-		} 
-		else{
+	// 	} 
+	// 	else{
 
-			// println(chr_name, int(chr_name));
-			return Integer.parseInt(chr_name) - 1;
-		}
-	}
+	// 		// println(chr_name, int(chr_name));
+	// 		return Integer.parseInt(chr_name) - 1;
+	// 	}
+	// }
 
 	float genToPolar(String chr_name, int pos){
 
-		println(chr_name, pos);
-		TableRow chr_ref = chr_table.getRow(getChrIndex(chr_name));
+		// println(chr_name, pos);
+		// TableRow chr_ref = chr_table.getRow(getChrIndex(chr_name));
+		TableRow chr_ref = chr_table.findRow(chr_name, "chr_name");
+
+		if (chr_ref == null){
+			println("ERROR in trying to retrieve row for " + chr_name + " in table, this name does not exist. Are you sure the chr names match between your annotations and your genome file?");
+			exit();
+		}
 
 		// find the angle corresponding to the chromosome and position, given the start and end angles defined for that chromosome
 		float angle = map(pos, 0, chr_ref.getInt("length"), chr_ref.getFloat("start_angle"), chr_ref.getFloat("end_angle"));

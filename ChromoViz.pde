@@ -39,6 +39,9 @@ boolean wait = true;
 void setup(){
 
   size(800,800, P3D);
+  if (frame != null) {
+    frame.setResizable(true);
+  }
 
 
   selectInput("Select a config file describing your genomes and annotations:", "parseConfigFile");
@@ -128,21 +131,21 @@ void parseConfigFile(File selection) {
 					genomes.add(current_genome);
 				}
 				current_genome = new Genome(tokens[1], tokens[2]);
-				println("add genome");
+				// println("add genome");
 			}
 
 			//bed line is of the form
 			//bed	filename	r,g,b	[dot|interval]
 			else if (tokens[0].equals("bed")){
 				current_genome.addBed(tokens[1], parseColor(tokens[2]), tokens[3], annot_alpha_val);
-				println("add bed");
+				// println("add bed");
 			}
 
 			//bedpe line is of the form
 			//bedpe	filename	r,g,b
 			else if (tokens[0].equals("bedpe")){
 				current_genome.addBedPE(tokens[1], parseColor(tokens[2]), annot_alpha_val);
-				println("add bedpe");
+				// println("add bedpe");
 			}
 
 		}
