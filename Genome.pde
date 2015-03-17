@@ -15,7 +15,7 @@ class Genome{
 
 	} 
 
-	void addBed(String filename, String glyph, color c, int alpha_val){
+	void addBed(String filename, color c, String glyph, int alpha_val){
 
 		BedAnnot b = new BedAnnot(filename, glyph, c, alpha_val);
 

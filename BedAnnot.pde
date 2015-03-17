@@ -15,6 +15,7 @@ class BedAnnot{
 		glyph = g;
 		alpha_val = a;
 		col = c;
+		println("tbale", bed_file, bed_table);
 
 	}
 
