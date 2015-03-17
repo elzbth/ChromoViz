@@ -30,18 +30,24 @@ ArrayList colors = brewer.get_Set1_Qualitative_4();
 
 int shift = 200;
 
-int annot_alpha_val = 150;
+int annot_alpha_val = 100;
 
+boolean spread = true;
 
-boolean wait = true;
+boolean stacked = false;
+
+float chr_width;
+
+float zoom = 1;
 
 
 void setup(){
 
-  size(800,800, P3D);
-  if (frame != null) {
-    frame.setResizable(true);
-  }
+  int min_size = min(displayWidth, displayHeight);
+  size(min_size,min_size, P3D);
+  // if (frame != null) {
+  //   frame.setResizable(true);
+  // }
 
 
   selectInput("Select a config file describing your genomes and annotations:", "parseConfigFile");
@@ -86,26 +92,69 @@ void setup(){
 void draw(){
 
 
-  background(255);
-  full_radius = int(min(width, height) * 0.4);
+	background(255);
+	full_radius = int(min(width, height) * 0.4);
 
 
-  int counter = 0;
+	int counter = 0;
 
 
+	//draw stacked  
+	if (stacked) {
+		chr_width = 40;
+		for (Genome genome : genomes){
 
-  
-  for (Genome genome : genomes){
+			pushMatrix();
+			scale(zoom);  
+			translate(0, 0, counter * shift);
+			genome.draw(full_radius, width/2, width/2, chr_width);
+			counter ++;
+			popMatrix();
 
-  	pushMatrix();
-    translate(0, 0, counter * shift);
-    genome.draw(full_radius, width/2, width/2);
-    counter ++;
-    popMatrix();
+		}
+	}
+	// println(counter);
 
-  }
-  // println(counter);
-  
+
+	//draw spread
+	if (spread){
+
+		float sqrt_num_chr = sqrt(genomes.size());
+		int numcols =  round(sqrt_num_chr);
+		int numrows = ceil(sqrt_num_chr);
+
+		int col_spacer = width / (numcols + 1);
+		int row_spacer = height / (numrows + 1);
+
+		int col_index = 0;
+		int row_index = 0;
+
+		int x_pos = 0;
+		int y_pos = 0;
+
+		int radius = int(( width / (max(numcols, numrows) + 1) ) * 0.4);
+
+		int chr_width = 10;
+
+		for (Genome genome : genomes){
+
+			pushMatrix();
+			scale(zoom);  
+			translate(x_pos + col_index * col_spacer, y_pos + row_index * row_spacer, 0);
+			genome.draw(radius, col_spacer/2 , col_spacer/2, chr_width);
+			popMatrix();
+			//update column and row indices to draw row by row
+			if (col_index < numcols){
+				col_index ++;
+			}
+			else{
+				row_index ++;
+				col_index = 0;
+			}
+		}
+	}
+
+	// scale(zoom);  
 
 }
 
@@ -151,6 +200,7 @@ void parseConfigFile(File selection) {
 		}
 		genomes.add(current_genome);
 		genome = current_genome;
+
 		// wait = false;
 	}
 }
@@ -173,6 +223,33 @@ void mouseEntered(MouseEvent e) {
 void mouseExited(MouseEvent e) {
   noLoop();
 }
+
+void keyPressed() {
+  if (key == 'o') {
+    zoom += 0.1;
+  } else if (key == 'i'){
+    zoom -= 0.1;
+  }
+  else if (key == 'f'){
+    spread = true;
+    stacked = false;
+  }
+  else if (key == 's'){
+    spread = false;
+    stacked = true;
+    shift = 0;
+
+  }
+  else if (key == '+'){
+  	shift += 10;
+  }
+  else if (key == '-'){
+  	shift -= 10;
+  }
+
+}
+
+
 
 
 

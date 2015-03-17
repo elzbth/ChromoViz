@@ -6,15 +6,12 @@ class Genome{
 
 	ArrayList<BedPEAnnot> bedpe_annots = null;
 
-	int chr_width = 40;
-
 	String name;
 
 	Genome(String chr_table, String n){
 
-		ideogram = new ChromIdeogram(chr_table, chr_width);
+		ideogram = new ChromIdeogram(chr_table);
 		name = n;
-
 
 	} 
 
@@ -33,7 +30,7 @@ class Genome{
 
 	void addBedPE(String filename, color c, int alpha_val){
 
-		BedPEAnnot bpe = new BedPEAnnot(filename, c, alpha_val, chr_width);
+		BedPEAnnot bpe = new BedPEAnnot(filename, c, alpha_val);
 
 		if (bedpe_annots == null){
 			bedpe_annots = new ArrayList<BedPEAnnot>();
@@ -43,8 +40,8 @@ class Genome{
 		
 	}
 
-	void draw(float radius, float center_x, float center_y){
-		ideogram.draw(radius, center_x, center_y);
+	void draw(float radius, float center_x, float center_y, float chr_width){
+		ideogram.draw(radius, center_x, center_y, chr_width);
 		// println("drew ideo");
 		//to do: calculate fraction of radius as a function of number of bed annots
 		if (bed_annots != null){
@@ -58,7 +55,7 @@ class Genome{
 		if (bedpe_annots != null){
 			for (BedPEAnnot bpe: bedpe_annots){
 				// println("drawbedpe");
-				bpe.draw(radius, center_x, center_y);
+				bpe.draw(radius, center_x, center_y, chr_width);
 				// println("drew bedpe");
 			}
 		}

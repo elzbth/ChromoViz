@@ -6,18 +6,16 @@ class BedPEAnnot{
 
 	int alpha_val;
 
-	int chr_width;
 
-	BedPEAnnot(String bed_file, color col, int a, int w){
+	BedPEAnnot(String bed_file, color col, int a){
 
 		c = col;
 		alpha_val = a;
-		chr_width = w; 
 
 		bed_pe_table = loadTable(bed_file, "header, tsv");
 	}
 
-	void drawAsIntPairBezier(float radius, float x, float y){
+	void drawAsIntPairBezier(float radius, float x, float y, float chr_width){
 
 		float start_angle1 = 0.0; 
 		float end_angle1 = 0.0; 
@@ -46,8 +44,8 @@ class BedPEAnnot{
 
 	}
 
-	void draw(float radius, float x, float y){
-		drawAsIntPairBezier(radius, x, y);
+	void draw(float radius, float x, float y, float chr_width){
+		drawAsIntPairBezier(radius, x, y, chr_width);
 
 		//maybe have other ways of drawing this later?
 	}

@@ -4,17 +4,16 @@ class ChromIdeogram{
 	Table chr_table;
 	float tot_length;
 	int num_chr;
-	int chr_width;
+
 	
 
-	ChromIdeogram(String table_name, int chr_w){
+	ChromIdeogram(String table_name){
 
 		chr_table = loadTable(table_name, "header, tsv");
 
 		num_chr = chr_table.getRowCount();
 		println(num_chr);
 
-		chr_width = chr_w;
 
 		//take into account the spacers between chromosomes 
 		float tot_available_angle = TWO_PI - (num_chr*spacer_rad);
@@ -59,7 +58,7 @@ class ChromIdeogram{
 		}
 	} 
 
-	void draw(float radius, float x, float y){
+	void draw(float radius, float x, float y, float chr_width){
 
 		int i = 0;
 		for (TableRow row : chr_table.rows()){
