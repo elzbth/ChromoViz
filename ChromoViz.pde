@@ -72,7 +72,7 @@ void setup(){
  //  genomes.add(genome2);
 
 
-  println(genomes);
+  // println(genomes);
 
 	
 	frameRate(30);
@@ -119,15 +119,15 @@ void parseConfigFile(File selection) {
 		Genome current_genome = null;
 		for (String current_line : lines){
 			String tokens[] = split(current_line, TAB);
-			println(tokens[0]);
+			// println(tokens[0]);
 
 			//genome line is of the form
-			//genome	filename
+			//genome	filename	samplename
 			if (tokens[0].equals("genome")){
 				if(current_genome != null){
 					genomes.add(current_genome);
 				}
-				current_genome = new Genome(tokens[1]);
+				current_genome = new Genome(tokens[1], tokens[2]);
 				println("add genome");
 			}
 

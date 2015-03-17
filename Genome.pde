@@ -2,15 +2,18 @@ class Genome{
 	
 	ChromIdeogram ideogram;
 
-	ArrayList<BedAnnot> bed_annots;
+	ArrayList<BedAnnot> bed_annots = null;
 
-	ArrayList<BedPEAnnot> bedpe_annots;
+	ArrayList<BedPEAnnot> bedpe_annots = null;
 
 	int chr_width = 40;
 
-	Genome(String chr_table){
+	String name;
+
+	Genome(String chr_table, String n){
 
 		ideogram = new ChromIdeogram(chr_table, chr_width);
+		name = n;
 
 
 	} 
@@ -42,14 +45,26 @@ class Genome{
 
 	void draw(float radius, float center_x, float center_y){
 		ideogram.draw(radius, center_x, center_y);
+		println("drew ideo");
 		//to do: calculate fraction of radius as a function of number of bed annots
-		for (BedAnnot b : bed_annots){
-			b.draw(radius * 0.8, center_x, center_y);
+		if (bed_annots != null){
+			for (BedAnnot b : bed_annots){
+				println("drew bed");
+				b.draw(radius * 0.8, center_x, center_y);
+				println("drew bed");
+			}
 		}
 
-		for (BedPEAnnot bpe: bedpe_annots){
-			bpe.draw(radius, center_x, center_y);
+		if (bedpe_annots != null){
+			for (BedPEAnnot bpe: bedpe_annots){
+				println("drawbedpe");
+				bpe.draw(radius, center_x, center_y);
+				println("drew bedpe");
+			}
 		}
+
+		fill(50);
+		text(name, center_x, center_y);
 	}
 
 	float genToPolar(String chr_name, int pos){

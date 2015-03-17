@@ -9,9 +9,10 @@ class ChromIdeogram{
 
 	ChromIdeogram(String table_name, int chr_w){
 
-		chr_table = loadTable(table_name, "header");
+		chr_table = loadTable(table_name, "header, tsv");
 
 		num_chr = chr_table.getRowCount();
+		println(num_chr);
 
 		chr_width = chr_w;
 
@@ -75,22 +76,27 @@ class ChromIdeogram{
 	}
 
 	int getChrIndex(String chr_name){
+		println("chr_name", chr_name);
 		if (chr_name.equals( "X")){
 			return 22;
 		}
 		else if (chr_name.equals("Y")){
 				return 23;
+		}
+		else if (chr_name.equals("pb-ef1-neo_seq")){
+			return 24;
 			
-		} else{
+		} 
+		else{
 
 			// println(chr_name, int(chr_name));
-			return int(chr_name) - 1;
+			return Integer.parseInt(chr_name) - 1;
 		}
 	}
 
 	float genToPolar(String chr_name, int pos){
 
-		// println(chr, pos);
+		println(chr_name, pos);
 		TableRow chr_ref = chr_table.getRow(getChrIndex(chr_name));
 
 		// find the angle corresponding to the chromosome and position, given the start and end angles defined for that chromosome
