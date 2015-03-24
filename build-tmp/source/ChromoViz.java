@@ -49,25 +49,28 @@ ArrayList colors = brewer.get_Set1_Qualitative_4();
 
 int shift = 200;
 
-int annot_alpha_val = 150;
+int annot_alpha_val = 100;
 
+boolean spread = true;
 
-boolean wait = true;
+boolean stacked = false;
+
+float chr_width;
+
+float zoom = 1;
 
 
 public void setup(){
 
-  size(800,800, P3D);
+  int min_size = min(displayWidth, displayHeight);
+  size(min_size,min_size, P3D);
+  // if (frame != null) {
+  //   frame.setResizable(true);
+  // }
 
-  //successfully selected file and loaded genomes will set loop()
-  // noLoop();
 
   selectInput("Select a config file describing your genomes and annotations:", "parseConfigFile");
 
-
-  // while (wait){
-  // 	println("waiting for file to be selected ... ");
-  // }
 
   	// parseConfigFile("test_config.txt");
   
@@ -97,7 +100,7 @@ public void setup(){
  //  genomes.add(genome2);
 
 
-  println(genomes);
+  // println(genomes);
 
 	
 	frameRate(30);
@@ -108,26 +111,69 @@ public void setup(){
 public void draw(){
 
 
-  background(255);
-  full_radius = PApplet.parseInt(min(width, height) * 0.4f);
+	background(255);
+	full_radius = PApplet.parseInt(min(width, height) * 0.4f);
 
 
-  int counter = 0;
+	int counter = 0;
 
 
+	//draw stacked  
+	if (stacked) {
+		chr_width = 40;
+		for (Genome genome : genomes){
 
-  
-  for (Genome genome : genomes){
+			pushMatrix();
+			scale(zoom);  
+			translate(0, 0, counter * shift);
+			genome.draw(full_radius, width/2, width/2, chr_width);
+			counter ++;
+			popMatrix();
 
-  	pushMatrix();
-    translate(0, 0, counter * shift);
-    genome.draw(full_radius, width/2, width/2);
-    counter ++;
-    popMatrix();
+		}
+	}
+	// println(counter);
 
-  }
-  // println(counter);
-  
+
+	//draw spread
+	if (spread){
+
+		float sqrt_num_chr = sqrt(genomes.size());
+		int numcols =  round(sqrt_num_chr);
+		int numrows = ceil(sqrt_num_chr);
+
+		int col_spacer = width / (numcols + 1);
+		int row_spacer = height / (numrows + 1);
+
+		int col_index = 0;
+		int row_index = 0;
+
+		int x_pos = 0;
+		int y_pos = 0;
+
+		int radius = PApplet.parseInt(( width / (max(numcols, numrows) + 1) ) * 0.4f);
+
+		int chr_width = 10;
+
+		for (Genome genome : genomes){
+
+			pushMatrix();
+			scale(zoom);  
+			translate(x_pos + col_index * col_spacer, y_pos + row_index * row_spacer, 0);
+			genome.draw(radius, col_spacer/2 , col_spacer/2, chr_width);
+			popMatrix();
+			//update column and row indices to draw row by row
+			if (col_index < numcols){
+				col_index ++;
+			}
+			else{
+				row_index ++;
+				col_index = 0;
+			}
+		}
+	}
+
+	// scale(zoom);  
 
 }
 
@@ -144,35 +190,36 @@ public void parseConfigFile(File selection) {
 		Genome current_genome = null;
 		for (String current_line : lines){
 			String tokens[] = split(current_line, TAB);
-			println(tokens[0]);
+			// println(tokens[0]);
 
 			//genome line is of the form
-			//genome	filename
+			//genome	filename	samplename
 			if (tokens[0].equals("genome")){
 				if(current_genome != null){
 					genomes.add(current_genome);
 				}
-				current_genome = new Genome(tokens[1]);
-				println("add genome");
+				current_genome = new Genome(tokens[1], tokens[2]);
+				// println("add genome");
 			}
 
 			//bed line is of the form
 			//bed	filename	r,g,b	[dot|interval]
 			else if (tokens[0].equals("bed")){
 				current_genome.addBed(tokens[1], parseColor(tokens[2]), tokens[3], annot_alpha_val);
-				println("add bed");
+				// println("add bed");
 			}
 
 			//bedpe line is of the form
 			//bedpe	filename	r,g,b
 			else if (tokens[0].equals("bedpe")){
 				current_genome.addBedPE(tokens[1], parseColor(tokens[2]), annot_alpha_val);
-				println("add bedpe");
+				// println("add bedpe");
 			}
 
 		}
 		genomes.add(current_genome);
 		genome = current_genome;
+
 		// wait = false;
 	}
 }
@@ -195,6 +242,33 @@ public void mouseEntered(MouseEvent e) {
 public void mouseExited(MouseEvent e) {
   noLoop();
 }
+
+public void keyPressed() {
+  if (key == 'o') {
+    zoom += 0.1f;
+  } else if (key == 'i'){
+    zoom -= 0.1f;
+  }
+  else if (key == 'f'){
+    spread = true;
+    stacked = false;
+  }
+  else if (key == 's'){
+    spread = false;
+    stacked = true;
+    shift = 0;
+
+  }
+  else if (key == '+'){
+  	shift += 10;
+  }
+  else if (key == '-'){
+  	shift -= 10;
+  }
+
+}
+
+
 
 
 
@@ -260,6 +334,7 @@ class BedAnnot{
 
 	}
 
+	//draw as dot in the center of the interval
 	public void drawAsDot(float radius, float x, float y){
 
 		float start_angle = 0.0f; 
@@ -287,6 +362,8 @@ class BedAnnot{
 	//draw as triangle
 
 	//draw as scatter?
+
+	//draw as line
 }
 class BedPEAnnot{
 	
@@ -296,18 +373,16 @@ class BedPEAnnot{
 
 	int alpha_val;
 
-	int chr_width;
 
-	BedPEAnnot(String bed_file, int col, int a, int w){
+	BedPEAnnot(String bed_file, int col, int a){
 
 		c = col;
 		alpha_val = a;
-		chr_width = w; 
 
 		bed_pe_table = loadTable(bed_file, "header, tsv");
 	}
 
-	public void drawAsIntPairBezier(float radius, float x, float y){
+	public void drawAsIntPairBezier(float radius, float x, float y, float chr_width){
 
 		float start_angle1 = 0.0f; 
 		float end_angle1 = 0.0f; 
@@ -336,8 +411,8 @@ class BedPEAnnot{
 
 	}
 
-	public void draw(float radius, float x, float y){
-		drawAsIntPairBezier(radius, x, y);
+	public void draw(float radius, float x, float y, float chr_width){
+		drawAsIntPairBezier(radius, x, y, chr_width);
 
 		//maybe have other ways of drawing this later?
 	}
@@ -348,16 +423,16 @@ class ChromIdeogram{
 	Table chr_table;
 	float tot_length;
 	int num_chr;
-	int chr_width;
+
 	
 
-	ChromIdeogram(String table_name, int chr_w){
+	ChromIdeogram(String table_name){
 
-		chr_table = loadTable(table_name, "header");
+		chr_table = loadTable(table_name, "header, tsv");
 
 		num_chr = chr_table.getRowCount();
+		println(num_chr);
 
-		chr_width = chr_w;
 
 		//take into account the spacers between chromosomes 
 		float tot_available_angle = TWO_PI - (num_chr*spacer_rad);
@@ -402,7 +477,7 @@ class ChromIdeogram{
 		}
 	} 
 
-	public void draw(float radius, float x, float y){
+	public void draw(float radius, float x, float y, float chr_width){
 
 		int i = 0;
 		for (TableRow row : chr_table.rows()){
@@ -414,28 +489,40 @@ class ChromIdeogram{
 
 	public TableRow get_chr_table_row(String chr_name){
 
-		return chr_table.getRow(getChrIndex(chr_name));
+		// return chr_table.getRow(getChrIndex(chr_name));
+		return chr_table.findRow(chr_name, "chr_name");
 
 	}
 
-	public int getChrIndex(String chr_name){
-		if (chr_name.equals( "X")){
-			return 22;
-		}
-		else if (chr_name.equals("Y")){
-				return 23;
+	// int getChrIndex(String chr_name){
+	// 	println("chr_name", chr_name);
+	// 	if (chr_name.equals( "X")){
+	// 		return 22;
+	// 	}
+	// 	else if (chr_name.equals("Y")){
+	// 			return 23;
+	// 	}
+	// 	else if (chr_name.equals("pb-ef1-neo_seq")){
+	// 		return 24;
 			
-		} else{
+	// 	} 
+	// 	else{
 
-			// println(chr_name, int(chr_name));
-			return PApplet.parseInt(chr_name) - 1;
-		}
-	}
+	// 		// println(chr_name, int(chr_name));
+	// 		return Integer.parseInt(chr_name) - 1;
+	// 	}
+	// }
 
 	public float genToPolar(String chr_name, int pos){
 
-		// println(chr, pos);
-		TableRow chr_ref = chr_table.getRow(getChrIndex(chr_name));
+		// println(chr_name, pos);
+		// TableRow chr_ref = chr_table.getRow(getChrIndex(chr_name));
+		TableRow chr_ref = chr_table.findRow(chr_name, "chr_name");
+
+		if (chr_ref == null){
+			println("ERROR in trying to retrieve row for " + chr_name + " in table, this name does not exist. Are you sure the chr names match between your annotations and your genome file?");
+			exit();
+		}
 
 		// find the angle corresponding to the chromosome and position, given the start and end angles defined for that chromosome
 		float angle = map(pos, 0, chr_ref.getInt("length"), chr_ref.getFloat("start_angle"), chr_ref.getFloat("end_angle"));
@@ -4014,16 +4101,16 @@ class Genome{
 	
 	ChromIdeogram ideogram;
 
-	ArrayList<BedAnnot> bed_annots;
+	ArrayList<BedAnnot> bed_annots = null;
 
-	ArrayList<BedPEAnnot> bedpe_annots;
+	ArrayList<BedPEAnnot> bedpe_annots = null;
 
-	int chr_width = 40;
+	String name;
 
-	Genome(String chr_table){
+	Genome(String chr_table, String n){
 
-		ideogram = new ChromIdeogram(chr_table, chr_width);
-
+		ideogram = new ChromIdeogram(chr_table);
+		name = n;
 
 	} 
 
@@ -4042,7 +4129,7 @@ class Genome{
 
 	public void addBedPE(String filename, int c, int alpha_val){
 
-		BedPEAnnot bpe = new BedPEAnnot(filename, c, alpha_val, chr_width);
+		BedPEAnnot bpe = new BedPEAnnot(filename, c, alpha_val);
 
 		if (bedpe_annots == null){
 			bedpe_annots = new ArrayList<BedPEAnnot>();
@@ -4052,16 +4139,28 @@ class Genome{
 		
 	}
 
-	public void draw(float radius, float center_x, float center_y){
-		ideogram.draw(radius, center_x, center_y);
+	public void draw(float radius, float center_x, float center_y, float chr_width){
+		ideogram.draw(radius, center_x, center_y, chr_width);
+		// println("drew ideo");
 		//to do: calculate fraction of radius as a function of number of bed annots
-		for (BedAnnot b : bed_annots){
-			b.draw(radius * 0.8f, center_x, center_y);
+		if (bed_annots != null){
+			for (BedAnnot b : bed_annots){
+				// println("drew bed");
+				b.draw(radius * 0.8f, center_x, center_y);
+				// println("drew bed");
+			}
 		}
 
-		for (BedPEAnnot bpe: bedpe_annots){
-			bpe.draw(radius, center_x, center_y);
+		if (bedpe_annots != null){
+			for (BedPEAnnot bpe: bedpe_annots){
+				// println("drawbedpe");
+				bpe.draw(radius, center_x, center_y, chr_width);
+				// println("drew bedpe");
+			}
 		}
+
+		fill(50);
+		text(name, center_x, center_y);
 	}
 
 	public float genToPolar(String chr_name, int pos){
