@@ -1,5 +1,7 @@
 import processing.opengl.*;
 import peasy.*;
+import processing.pdf.*;
+
 
 //for nice image panning, rotation and zoom
 PeasyCam cam;
@@ -39,6 +41,8 @@ boolean stacked = false;
 float chr_width;
 
 float zoom = 1;
+
+boolean record_pdf = false;
 
 
 void setup(){
@@ -91,6 +95,9 @@ void setup(){
 
 void draw(){
 
+	if (record_pdf){
+		beginRecord(PDF, "frame-####.pdf");
+	}
 
 	background(255);
 	full_radius = int(min(width, height) * 0.4);
@@ -152,6 +159,11 @@ void draw(){
 				col_index = 0;
 			}
 		}
+	}
+
+	if (record_pdf){
+		endRecord();
+		record_pdf = false;
 	}
 
 	// scale(zoom);  
@@ -245,6 +257,9 @@ void keyPressed() {
   }
   else if (key == '-'){
   	shift -= 10;
+  }
+  else if (key == 'w'){
+  	record_pdf = true;
   }
 
 }
